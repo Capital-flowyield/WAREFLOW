@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import { FileCheck2, ShieldCheck, Handshake, Plug } from 'lucide-react';
-import { COMPLIANCE } from '../data/content';
+import { useLang } from '../i18n';
 
 const ICONS = { file: FileCheck2, shield: ShieldCheck, handshake: Handshake, plug: Plug };
 
 export default function Compliance() {
+  const { t } = useLang();
+  const d = t.compliance;
   return (
     <section data-testid="compliance-section" className="relative z-10 bg-ink py-32">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 lg:grid-cols-2 lg:gap-24">
@@ -16,17 +18,17 @@ export default function Compliance() {
         >
           <p className="mb-6 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-primary">
             <span className="inline-block h-px w-10 bg-primary" />
-            05 — COMPLIANCE
+            {d.index} — {d.label}
           </p>
           <h2 data-testid="compliance-title" className="font-display text-4xl font-black uppercase leading-[1.02] tracking-tighter md:text-6xl">
-            {COMPLIANCE.titleA}
+            {d.titleA}
             <br />
-            <span className="text-primary">{COMPLIANCE.titleB}</span>
+            <span className="text-primary">{d.titleB}</span>
           </h2>
-          <p className="mt-8 max-w-lg text-base leading-relaxed text-mute md:text-lg">{COMPLIANCE.body}</p>
+          <p className="mt-8 max-w-lg text-base leading-relaxed text-mute md:text-lg">{d.body}</p>
         </motion.div>
         <div className="flex flex-col justify-center gap-px bg-white/10">
-          {COMPLIANCE.items.map((item, i) => {
+          {d.items.map((item, i) => {
             const Icon = ICONS[item.icon];
             return (
               <motion.div

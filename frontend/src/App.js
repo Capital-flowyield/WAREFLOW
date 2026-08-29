@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { Toaster } from 'sonner';
+import { LanguageProvider } from './i18n';
 import Cursor from './components/Cursor';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -14,6 +15,7 @@ import Stats from './components/Stats';
 import Marquee from './components/Marquee';
 import Compliance from './components/Compliance';
 import Cta from './components/CTA';
+import SoundToggle from './components/SoundToggle';
 import { setLenis } from './lib/scroll';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -38,25 +40,28 @@ export default function App() {
   }, []);
 
   return (
-    <div className="bg-ink font-sans text-white antialiased">
-      <div className="noise-overlay" aria-hidden />
-      <Cursor />
-      <Suspense fallback={null}>
-        <Scene3D />
-      </Suspense>
-      <Navbar />
-      <main className="relative z-10">
-        <Hero />
-        <Problems />
-        <Transformation />
-        <Principles />
-        <Modules />
-        <Stats />
-        <Marquee />
-        <Compliance />
-        <Cta />
-      </main>
-      <Toaster theme="dark" position="bottom-right" />
-    </div>
+    <LanguageProvider>
+      <div className="bg-ink font-sans text-white antialiased">
+        <div className="noise-overlay" aria-hidden />
+        <Cursor />
+        <Suspense fallback={null}>
+          <Scene3D />
+        </Suspense>
+        <Navbar />
+        <main className="relative z-10">
+          <Hero />
+          <Problems />
+          <Transformation />
+          <Principles />
+          <Modules />
+          <Stats />
+          <Marquee />
+          <Compliance />
+          <Cta />
+        </main>
+        <SoundToggle />
+        <Toaster theme="dark" position="bottom-right" />
+      </div>
+    </LanguageProvider>
   );
 }

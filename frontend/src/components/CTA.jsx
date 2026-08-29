@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Check } from 'lucide-react';
-import { CTA } from '../data/content';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { useLang } from '../i18n';
 
 const inputCls =
   'w-full border border-white/15 bg-ink px-4 py-3.5 font-sans text-sm text-white placeholder:text-white/30 outline-none transition-colors duration-300 focus:border-primary';
 
 export default function Cta() {
+  const { t } = useLang();
+  const d = t.cta;
   const reduced = usePrefersReducedMotion();
   const [form, setForm] = useState({ nome: '', azienda: '', email: '', dimensione: '', note: '' });
   const [sending, setSending] = useState(false);
@@ -21,7 +23,7 @@ export default function Cta() {
     setTimeout(() => {
       setSending(false);
       setForm({ nome: '', azienda: '', email: '', dimensione: '', note: '' });
-      toast.success('Richiesta inviata. Ti ricontattiamo entro 24 ore lavorative.', {
+      toast.success(d.toast, {
         style: { background: '#121212', border: '1px solid rgba(255,92,0,0.4)', color: '#fff' },
       });
     }, 900);
@@ -38,16 +40,16 @@ export default function Cta() {
         >
           <p className="mb-6 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-primary">
             <span className="inline-block h-px w-10 bg-primary" />
-            {CTA.label}
+            {d.label}
           </p>
           <h2 data-testid="cta-title" className="font-display text-4xl font-black uppercase leading-[1.02] tracking-tighter md:text-6xl">
-            {CTA.titleA}
+            {d.titleA}
             <br />
-            <span className="text-primary">{CTA.titleB}</span>
+            <span className="text-primary">{d.titleB}</span>
           </h2>
-          <p className="mt-8 max-w-lg text-base leading-relaxed text-mute md:text-lg">{CTA.body}</p>
+          <p className="mt-8 max-w-lg text-base leading-relaxed text-mute md:text-lg">{d.body}</p>
           <ul className="mt-10 space-y-4" data-testid="cta-bullets">
-            {CTA.bullets.map((b) => (
+            {d.bullets.map((b) => (
               <li key={b} className="flex items-start gap-3 text-sm leading-relaxed text-white/80 md:text-base">
                 <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
                 {b}
@@ -66,7 +68,7 @@ export default function Cta() {
           className="border border-white/10 bg-surface p-8 md:p-10"
         >
           <p className="mb-8 font-mono text-xs uppercase tracking-[0.3em] text-mute">
-            Modulo richiesta <span className="text-primary">— 30 secondi</span>
+            {d.formTitleA} <span className="text-primary">{d.formTitleB}</span>
           </p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <input
@@ -74,7 +76,7 @@ export default function Cta() {
               required
               value={form.nome}
               onChange={set('nome')}
-              placeholder="Nome e cognome"
+              placeholder={d.nome}
               className={inputCls}
             />
             <input
@@ -82,7 +84,7 @@ export default function Cta() {
               required
               value={form.azienda}
               onChange={set('azienda')}
-              placeholder="Azienda"
+              placeholder={d.azienda}
               className={inputCls}
             />
             <input
@@ -91,7 +93,7 @@ export default function Cta() {
               type="email"
               value={form.email}
               onChange={set('email')}
-              placeholder="Email aziendale"
+              placeholder={d.email}
               className={`${inputCls} sm:col-span-2`}
             />
             <select
@@ -102,19 +104,20 @@ export default function Cta() {
               className={`${inputCls} sm:col-span-2 ${form.dimensione ? 'text-white' : 'text-white/30'}`}
             >
               <option value="" disabled>
-                Dimensione del magazzino
+                {d.dimensione}
               </option>
-              <option value="<1000">Meno di 1.000 m²</option>
-              <option value="1000-5000">1.000 – 5.000 m²</option>
-              <option value="5000-20000">5.000 – 20.000 m²</option>
-              <option value=">20000">Oltre 20.000 m²</option>
+              {d.options.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
             </select>
             <textarea
               data-testid="demo-form-note"
               value={form.note}
               onChange={set('note')}
               rows={4}
-              placeholder="Raccontaci il tuo magazzino: settore, gestionale attuale, il problema che ti fa perdere più tempo."
+              placeholder={d.note}
               className={`${inputCls} resize-none sm:col-span-2`}
             />
           </div>
@@ -124,10 +127,10 @@ export default function Cta() {
             disabled={sending}
             className="mt-8 w-full bg-primary px-8 py-4 font-mono text-sm font-bold uppercase tracking-[0.15em] text-ink transition-colors duration-300 hover:bg-primary-hover disabled:opacity-60"
           >
-            {sending ? 'Invio in corso…' : 'Richiedi la demo'}
+            {sending ? d.sending : d.submit}
           </button>
           <p className="mt-5 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">
-            Risposta entro 24 ore lavorative — niente spam, niente call forzate
+            {d.formNote}
           </p>
         </motion.form>
       </div>
@@ -138,9 +141,9 @@ export default function Cta() {
             <span className="block h-3 w-3 bg-primary shadow-[0_0_14px_rgba(255,92,0,0.8)]" />
             <span className="font-mono text-sm font-bold tracking-[0.3em] text-white">WAREFLOW</span>
           </div>
-          <p className="text-sm text-mute">Nato in un magazzino. Costruito per i magazzini.</p>
+          <p className="text-sm text-mute">{t.footer.tagline}</p>
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/30">
-            © 2026 WareFlow — Dati tuoi. Sempre esportabili.
+            {t.footer.rights}
           </p>
         </div>
       </footer>

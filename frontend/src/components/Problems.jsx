@@ -1,20 +1,22 @@
 import { motion } from 'framer-motion';
-import { PROBLEMS } from '../data/content';
+import { useLang } from '../i18n';
 import SectionHeading from './SectionHeading';
 
 export default function Problems() {
+  const { t } = useLang();
+  const d = t.problems;
   return (
     <section id="problemi" data-testid="problems-section" className="relative z-10 bg-ink py-32">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          index="01"
-          label="IL PROBLEMA"
-          title="Il tuo gestionale sta rallentando il tuo magazzino."
-          sub="Non sono fastidi teorici. Sono le nove cose che ogni giorno costano soldi, tempo e credibilità a chi gestisce un magazzino con un software pensato vent’anni fa."
+          index={d.index}
+          label={d.label}
+          title={d.title}
+          sub={d.sub}
           testid="problems-heading"
         />
         <div className="grid grid-cols-1 gap-px bg-white/10 md:grid-cols-3" data-testid="problems-grid">
-          {PROBLEMS.map((p, i) => (
+          {d.items.map((p, i) => (
             <motion.article
               key={p.n}
               data-testid={`problem-card-${p.n}`}

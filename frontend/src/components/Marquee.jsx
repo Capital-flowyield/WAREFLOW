@@ -1,7 +1,8 @@
-import { MARQUEE_ITEMS } from '../data/content';
+import { useLang } from '../i18n';
 
 export default function Marquee() {
-  const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
+  const { t } = useLang();
+  const items = [...t.marquee, ...t.marquee];
   return (
     <div
       data-testid="editorial-marquee"

@@ -1,11 +1,13 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { HERO } from '../data/content';
 import { scrollToSection } from '../lib/scroll';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { useLang } from '../i18n';
 
 const EASE = [0.16, 1, 0.3, 1];
 
 export default function Hero() {
+  const { t } = useLang();
+  const HERO = t.hero;
   const reduced = usePrefersReducedMotion();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 700], [0, -140]);
@@ -74,14 +76,14 @@ export default function Hero() {
             onClick={() => scrollToSection('#demo')}
             className="bg-primary px-8 py-4 font-mono text-sm font-bold uppercase tracking-[0.15em] text-ink transition-colors duration-300 hover:bg-primary-hover"
           >
-            Richiedi una demo
+            {HERO.ctaDemo}
           </button>
           <button
             data-testid="hero-cta-problem"
             onClick={() => scrollToSection('#problemi')}
             className="border border-white/20 px-8 py-4 font-mono text-sm uppercase tracking-[0.15em] text-white transition-colors duration-300 hover:border-primary hover:text-primary"
           >
-            Vedi il problema ↓
+            {HERO.ctaProblem}
           </button>
         </motion.div>
       </motion.div>
@@ -100,7 +102,7 @@ export default function Hero() {
           ))}
         </div>
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-mute">
-          Scorri — dal caos all’ordine <span className="text-primary">↓</span>
+          {HERO.scrollHint} <span className="text-primary">↓</span>
         </p>
       </motion.div>
     </section>

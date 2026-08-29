@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react';
 import { scrollToSection } from '../lib/scroll';
-
-const LINKS = [
-  { label: 'Problemi', href: '#problemi', testid: 'nav-link-problemi' },
-  { label: 'Soluzione', href: '#principi', testid: 'nav-link-soluzione' },
-  { label: 'Moduli', href: '#moduli', testid: 'nav-link-moduli' },
-  { label: 'Numeri', href: '#numeri', testid: 'nav-link-numeri' },
-];
+import { useLang } from '../i18n';
 
 export default function Navbar() {
+  const { lang, setLang, t } = useLang();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -34,7 +29,7 @@ export default function Navbar() {
           <span className="font-mono text-sm font-bold tracking-[0.3em] text-white">WAREFLOW</span>
         </button>
         <nav className="hidden items-center gap-8 md:flex">
-          {LINKS.map((l) => (
+          {t.nav.links.map((l) => (
             <button
               key={l.href}
               data-testid={l.testid}
@@ -45,13 +40,32 @@ export default function Navbar() {
             </button>
           ))}
         </nav>
-        <button
-          data-testid="nav-cta-demo"
-          onClick={() => scrollToSection('#demo')}
-          className="border border-primary/60 px-4 py-2 font-mono text-xs uppercase tracking-[0.2em] text-primary transition-colors duration-300 hover:bg-primary hover:text-ink"
-        >
-          Richiedi una demo
-        </button>
+        <div className="flex items-center gap-5">
+          <div data-testid="lang-toggle" className="flex items-center font-mono text-[11px] tracking-[0.2em]">
+            <button
+              data-testid="lang-toggle-it"
+              onClick={() => setLang('it')}
+              className={`transition-colors duration-300 ${lang === 'it' ? 'text-primary' : 'text-mute hover:text-white'}`}
+            >
+              IT
+            </button>
+            <span className="px-1.5 text-white/20">/</span>
+            <button
+              data-testid="lang-toggle-en"
+              onClick={() => setLang('en')}
+              className={`transition-colors duration-300 ${lang === 'en' ? 'text-primary' : 'text-mute hover:text-white'}`}
+            >
+              EN
+            </button>
+          </div>
+          <button
+            data-testid="nav-cta-demo"
+            onClick={() => scrollToSection('#demo')}
+            className="border border-primary/60 px-4 py-2 font-mono text-xs uppercase tracking-[0.2em] text-primary transition-colors duration-300 hover:bg-primary hover:text-ink"
+          >
+            {t.nav.cta}
+          </button>
+        </div>
       </div>
     </header>
   );

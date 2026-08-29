@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, motion, useInView } from 'framer-motion';
-import { STATS } from '../data/content';
 import SectionHeading from './SectionHeading';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { useLang } from '../i18n';
 
 function Stat({ stat, index }) {
   const ref = useRef(null);
@@ -34,14 +34,16 @@ function Stat({ stat, index }) {
 }
 
 export default function Stats() {
+  const { t } = useLang();
+  const d = t.stats;
   return (
     <section id="numeri" data-testid="stats-section" className="relative z-10 bg-ink py-32">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          index="04"
-          label="LE PERFORMANCE"
-          title="Fatti, non promesse."
-          sub="Numeri misurati sull’architettura in produzione. Non li abbiamo scritti per impressionarti: li abbiamo scritti perché sono il motivo per cui il magazzino non si ferma più."
+          index={d.index}
+          label={d.label}
+          title={d.title}
+          sub={d.sub}
           testid="stats-heading"
         />
         <motion.div
@@ -52,7 +54,7 @@ export default function Stats() {
           className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4"
           data-testid="stats-grid"
         >
-          {STATS.map((s, i) => (
+          {d.items.map((s, i) => (
             <Stat key={s.label} stat={s} index={i} />
           ))}
         </motion.div>

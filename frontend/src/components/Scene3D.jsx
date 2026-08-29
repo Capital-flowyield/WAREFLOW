@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -13,35 +13,36 @@ const seeded = (i, salt) => {
   return x - Math.floor(x);
 };
 
+const Z_ROWS = [-4.8, -3.1, -1.4, 1.6, 3.3, 5.0];
+
 function buildLayout(count) {
   const cols = 9;
-  const zRows = [-4.8, -3.1, -1.4, 1.6, 3.3, 5.0];
   const items = [];
   for (let i = 0; i < count; i++) {
     const c = i % cols;
-    const r = Math.floor(i / cols) % zRows.length;
+    const r = Math.floor(i / cols) % Z_ROWS.length;
     const r1 = seeded(i, 1);
     const r2 = seeded(i, 2);
     const r3 = seeded(i, 3);
     const r4 = seeded(i, 4);
     const stacked = i % 5 === 4;
+    const sy = 0.8 + r3 * 0.35;
     items.push({
       chaos: {
         p: [(r1 - 0.5) * 18, 0.4 + r2 * 4.5, -4 + (r3 - 0.5) * 10],
         rot: [r2 * Math.PI * 0.9, r4 * Math.PI * 2, (r1 - 0.5) * Math.PI * 0.7],
       },
       order: {
-        p: [(c - (cols - 1) / 2) * 1.9, stacked ? 1.35 : 0.45, zRows[r]],
+        p: [(c - (cols - 1) / 2) * 1.9, (stacked ? 1.16 : 0.16) + sy / 2, Z_ROWS[r]],
       },
-      size: [0.95, 0.8 + r3 * 0.35, 0.95],
+      size: [0.95, sy, 0.95],
       amber: i % 9 === 0,
     });
   }
   return items;
 }
 
-function Boxes({ progressRef, count }) {
-  const items = useMemo(() => buildLayout(count), [count]);
+function Boxes({ progressRef, items }) {
   const refs = useRef([]);
 
   useFrame(() => {
@@ -68,6 +69,112 @@ function Boxes({ progressRef, count }) {
         metalness={0.15}
         emissive={it.amber ? '#FF5C00' : '#000000'}
         emissiveIntensity={it.amber ? 0.55 : 0}
+      />
+    </mesh>
+  ));
+}
+
+function Pallets({ progressRef, items }) {
+  const mesh = useRef();
+  const mat = useRef();
+
+  useLayoutEffect(() => {
+    const dummy = new THREE.Object3D();
+    items.forEach((it, i) => {
+      dummy.position.set(it.order.p[0], 0.08, it.order.p[2]);
+      dummy.updateMatrix();
+      mesh.current.setMatrixAt(i, dummy.matrix);
+    });
+    mesh.current.instanceMatrix.needsUpdate = true;
+  }, [items]);
+
+  useFrame(() => {
+    if (mat.current) mat.current.opacity = smooth(progressRef.current) * 0.95;
+  });
+
+  return (
+    <instancedMesh ref={mesh} args={[undefined, undefined, items.length]}>
+      <boxGeometry args={[1.12, 0.14, 1.12]} />
+      <meshStandardMaterial ref={mat} color="#2B1D0E" roughness={0.95} metalness={0} transparent opacity={0} />
+    </instancedMesh>
+  );
+}
+
+function Racks({ progressRef, rows }) {
+  const uprights = useRef();
+  const beams = useRef();
+  const matUp = useRef();
+  const matBeam = useRef();
+  const counts = useMemo(() => ({ up: rows.length * 5, beam: rows.length * 2 }), [rows]);
+
+  useLayoutEffect(() => {
+    const dummy = new THREE.Object3D();
+    let u = 0;
+    let b = 0;
+    rows.forEach((z) => {
+      for (let k = 0; k < 5; k++) {
+        dummy.position.set(-8.55 + k * 4.275, 1.3, z);
+        dummy.updateMatrix();
+        uprights.current.setMatrixAt(u, dummy.matrix);
+        u += 1;
+      }
+      [0.05, 2.35].forEach((y) => {
+        dummy.position.set(0, y, z);
+        dummy.updateMatrix();
+        beams.current.setMatrixAt(b, dummy.matrix);
+        b += 1;
+      });
+    });
+    uprights.current.instanceMatrix.needsUpdate = true;
+    beams.current.instanceMatrix.needsUpdate = true;
+  }, [rows]);
+
+  useFrame(() => {
+    const o = smooth(progressRef.current) * 0.8;
+    if (matUp.current) matUp.current.opacity = o;
+    if (matBeam.current) matBeam.current.opacity = o;
+  });
+
+  return (
+    <>
+      <instancedMesh ref={uprights} args={[undefined, undefined, counts.up]}>
+        <boxGeometry args={[0.12, 2.6, 0.12]} />
+        <meshStandardMaterial ref={matUp} color="#3A3A3A" roughness={0.45} metalness={0.7} transparent opacity={0} />
+      </instancedMesh>
+      <instancedMesh ref={beams} args={[undefined, undefined, counts.beam]}>
+        <boxGeometry args={[17.4, 0.09, 0.4]} />
+        <meshStandardMaterial
+          ref={matBeam}
+          color="#242424"
+          emissive="#FF5C00"
+          emissiveIntensity={0.05}
+          roughness={0.45}
+          metalness={0.65}
+          transparent
+          opacity={0}
+        />
+      </instancedMesh>
+    </>
+  );
+}
+
+function LightBeams() {
+  const beams = [
+    [-5.2, -3.0],
+    [0, -1.2],
+    [5.2, 1.4],
+    [-1.5, 3.6],
+  ];
+  return beams.map(([x, z], i) => (
+    <mesh key={i} position={[x, 5.2, z]}>
+      <coneGeometry args={[2.3, 9.5, 24, 1, true]} />
+      <meshBasicMaterial
+        color="#FF8A00"
+        transparent
+        opacity={0.035}
+        blending={THREE.AdditiveBlending}
+        side={THREE.DoubleSide}
+        depthWrite={false}
       />
     </mesh>
   ));
@@ -147,6 +254,8 @@ export default function Scene3D() {
     };
   }, []);
   const count = settings.mobile ? 27 : 54;
+  const items = useMemo(() => buildLayout(count), [count]);
+  const rows = settings.mobile ? Z_ROWS.slice(0, 3) : Z_ROWS;
 
   useEffect(() => {
     if (settings.reduced) {
@@ -184,7 +293,10 @@ export default function Scene3D() {
           <planeGeometry args={[80, 80]} />
           <meshStandardMaterial color="#0A0A0A" roughness={1} metalness={0} />
         </mesh>
-        <Boxes progressRef={progressRef} count={count} />
+        <Boxes progressRef={progressRef} items={items} />
+        <Pallets progressRef={progressRef} items={items} />
+        <Racks progressRef={progressRef} rows={rows} />
+        <LightBeams />
         <Agv progressRef={progressRef} reduced={settings.reduced} />
         <CameraRig progressRef={progressRef} reduced={settings.reduced} />
       </Canvas>

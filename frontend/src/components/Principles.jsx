@@ -1,20 +1,22 @@
 import { motion } from 'framer-motion';
-import { PRINCIPLES } from '../data/content';
+import { useLang } from '../i18n';
 import SectionHeading from './SectionHeading';
 
 export default function Principles() {
+  const { t } = useLang();
+  const d = t.principles;
   return (
     <section id="principi" data-testid="principles-section" className="relative z-10 bg-ink py-32">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          index="02"
-          label="LA SOLUZIONE"
-          title="Tre principi. Presi dai giganti, adattati a te."
-          sub="WareFlow applica i principi architetturali dei sistemi che gestiscono il Singles’ Day — centinaia di milioni di pacchi in 24 ore — alla realtà di un magazzino italiano."
+          index={d.index}
+          label={d.label}
+          title={d.title}
+          sub={d.sub}
           testid="principles-heading"
         />
         <div className="border-t border-white/10">
-          {PRINCIPLES.map((p, i) => (
+          {d.items.map((p, i) => (
             <motion.div
               key={p.n}
               data-testid={`principle-${p.n}`}
@@ -30,7 +32,7 @@ export default function Principles() {
               >
                 {p.n}
               </span>
-              <p className="font-mono text-sm tracking-[0.3em] text-primary">CAP. {p.n}</p>
+              <p className="font-mono text-sm tracking-[0.3em] text-primary">{d.chapter} {p.n}</p>
               <div className="relative">
                 <h3 className="font-display text-3xl font-bold tracking-tight md:text-5xl">{p.title}</h3>
                 <p className="mt-6 max-w-2xl text-base leading-relaxed text-mute md:text-lg">{p.body}</p>

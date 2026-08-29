@@ -35,7 +35,13 @@ Sito di marketing single-page per WareFlow, WMS di nuova generazione per PMI ita
 - P0: Push su GitHub `wareflow-emergent` (branch main) — azione manuale utente via pulsante "Save to GitHub".
 - P1: Form demo reale (integrazione email, es. Resend) con backend /api.
 - P1: Test su mobile reale + tuning performance 3D (fps meter).
-- P2: Versione inglese (i18n), meta OG/social cards, favicon brand, analytics eventi CTA.
+- P2: Meta OG/social cards, favicon brand, analytics eventi CTA.
+
+## Implementato (iterazione 2, 2026-08-29)
+- Toggle IT/EN nella navbar con LanguageProvider (React context + localStorage `wf-lang`, `document.lang` aggiornato). Tutto il copy localizzato in `src/data/content.js` (CONTENT.it / CONTENT.en): nav, hero, 9 problemi, trasformazione, principi, moduli, stats, marquee, compliance, CTA/form, footer, toggle audio.
+- Scena 3D cinematografica: scaffalature reali (uprights + beams in instancedMesh, fade-in con il progress), pallet sotto ogni box (instanced), 4 coni di luce volumetrica additiva dal soffitto.
+- Sound design ambientale WebAudio (`SoundToggle.jsx`, fixed bottom-left): ronzio AGV (saw 52Hz + LFO), roomtone filtrato, bip scanner 1180Hz random ogni 2.6–7.2s. Default off, nessun asset esterno.
+- Verificato: toggle EN su tutta la pagina, scena ordinata con scaffali a p=0.85, toggle audio on/off senza errori, zero errori console.
 
 ## Next tasks
 1. Utente: Save to GitHub → repo `wareflow-emergent`, branch main.
