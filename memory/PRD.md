@@ -49,6 +49,17 @@ Sito di marketing single-page per WareFlow, WMS di nuova generazione per PMI ita
 - Verificato via curl: og:image servita (200), favicon 200, meta OG presenti nell'HTML dopo restart frontend (html-webpack-plugin richiede restart per modifiche a index.html).
 - GitHub: push NON eseguibile dall'agente — richiede azione utente via pulsante "Save to GitHub" (repo `wareflow-emergent`, branch main). In attesa del link repo dall'utente per verifica.
 
+## Implementato (iterazione 4, 2026-08-29 — revisione 3D/hero/scroll)
+- Hero ricomposta: testo in colonna max-w-3xl con scrim gradiente scuro + vignetta inferiore; scena 3D spostata visivamente a destra (camera lookAt shift -2.2 → 0 con progress) e visibile dal primo frame.
+- Robot AGV ricostruito come modello articolato: chassis, ruote con hub ambra, mast, torretta sensore rotante (idle scan), braccio a 2 segmenti (shoulder/elbow) con pinza a due griffe. Scala 1.2. Anello pulsante sotto il robot come affordance (sparice dopo il primo grab o con lo scroll).
+- Interazione reale: raycasting manuale (canvas pointer-events-none) su hitbox invisibile; click → timeline GSAP: robot ruota verso il pacco, braccio si estende, pinza chiude, pacco sollevato e posato in uno slot ordinato (3 pacchi ciclici, poi reset con hop). Hover sul robot → cursore diventa scanner (evento `wf:robot-hover`). Bip sonoro su presa/rilascio se audio attivo (lib/sound.js condivisa). Hint hero "Prova a cliccare il robot" (IT/EN) che sfuma al primo grab (`wf:robot-grabbed`).
+- Debug hooks: window.__wf (st, progressRef), __wfRobot (posizione schermo), __wfParcels.
+- Didascalia trasformazione rimossa: sezione ora muta (show-don't-tell).
+- Scroll pinning: ScrollTrigger pin:true su #transformation-track, start 'top top', end '+=2200' (mobile 1500), scrub — pagina ferma mentre il riordino avanza 0→1. Verificato: top=0 costante durante il pin, progress 0.318→0.727→1.0, rilascio corretto verso Principi.
+- Pacchi reali: texture cartone procedurale (CanvasTexture 256px: base marrone, nastro adesivo, etichetta con barcode su 1/3 dei pacchi), roughness 0.95, dimensioni variate.
+- Contrasto: sezioni con toni diversi e alpha 0.90–0.95 (problems #0A0A0A opaco, principles/modules/stats/compliance/CTA semi-trasparenti con tinte calde/fredde), mute #ADADAD.
+- Movimento ovunque: AmbientParcels (10 pacchi che fluttuano con parallasse legata a window.scrollY) visibili in trasparenza dietro le sezioni post-transizione.
+
 ## Next tasks
 1. Utente: Save to GitHub → repo `wareflow-emergent`, branch main.
 2. Collegare form demo a email reale (serve scelta provider).

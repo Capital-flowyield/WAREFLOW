@@ -8,7 +8,7 @@ export default function Compliance() {
   const { t } = useLang();
   const d = t.compliance;
   return (
-    <section data-testid="compliance-section" className="relative z-10 bg-ink py-32">
+    <section data-testid="compliance-section" className="relative z-10 bg-[rgba(10,10,12,0.94)] py-32">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 lg:grid-cols-2 lg:gap-24">
         <motion.div
           initial={{ opacity: 0, y: 32 }}

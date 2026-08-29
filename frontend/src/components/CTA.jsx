@@ -30,7 +30,7 @@ export default function Cta() {
   };
 
   return (
-    <section id="demo" data-testid="cta-section" className="relative z-10 border-t border-white/10 bg-[#0B0B0B] py-32">
+    <section id="demo" data-testid="cta-section" className="relative z-10 border-t border-white/10 bg-[rgba(13,11,9,0.95)] py-32">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 lg:grid-cols-2 lg:gap-24">
         <motion.div
           initial={{ opacity: 0, y: reduced ? 0 : 32 }}

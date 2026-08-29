@@ -15,7 +15,7 @@ export default function Modules() {
   const { t } = useLang();
   const d = t.modules;
   return (
-    <section id="moduli" data-testid="modules-section" className="relative z-10 bg-[#0B0B0B] py-32">
+    <section id="moduli" data-testid="modules-section" className="relative z-10 bg-[rgba(14,12,10,0.94)] py-32">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           index={d.index}

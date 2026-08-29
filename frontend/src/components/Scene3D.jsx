@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { playBeep } from '../lib/sound';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,58 @@ const seeded = (i, salt) => {
 
 const Z_ROWS = [-4.8, -3.1, -1.4, 1.6, 3.3, 5.0];
 
+const LOOSE = [
+  { p: [5.5, 0.42, 0.95], rot: 0.5 },
+  { p: [3.15, 0.38, 1.15], rot: -0.8 },
+  { p: [5.2, 0.46, -0.85], rot: 1.2 },
+];
+
+const SLOTS = [
+  [3.85, 0.42, 1.15],
+  [2.9, 0.42, 1.15],
+  [1.95, 0.42, 1.15],
+];
+
+const _v = new THREE.Vector3();
+
+function makeCardboardTexture(label) {
+  const c = document.createElement('canvas');
+  c.width = 256;
+  c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#AC8757';
+  g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 700; i++) {
+    g.fillStyle = `rgba(70, 48, 24, ${Math.random() * 0.07})`;
+    g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+  }
+  const edge = g.createLinearGradient(0, 0, 0, 256);
+  edge.addColorStop(0, 'rgba(255,255,255,0.08)');
+  edge.addColorStop(1, 'rgba(0,0,0,0.18)');
+  g.fillStyle = edge;
+  g.fillRect(0, 0, 256, 256);
+  g.fillStyle = 'rgba(206, 176, 128, 0.9)';
+  g.fillRect(114, 0, 26, 256);
+  g.fillStyle = 'rgba(0,0,0,0.12)';
+  g.fillRect(114, 0, 2, 256);
+  g.fillRect(138, 0, 2, 256);
+  if (label) {
+    g.fillStyle = '#EDEDE6';
+    g.fillRect(160, 150, 70, 52);
+    g.fillStyle = '#141414';
+    let x = 166;
+    while (x < 222) {
+      const w = 1 + Math.floor(Math.random() * 3);
+      g.fillRect(x, 158, w, 26);
+      x += w + 1 + Math.floor(Math.random() * 3);
+    }
+    g.fillRect(166, 190, 48, 4);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 function buildLayout(count) {
   const cols = 9;
   const items = [];
@@ -26,16 +79,16 @@ function buildLayout(count) {
     const r3 = seeded(i, 3);
     const r4 = seeded(i, 4);
     const stacked = i % 5 === 4;
-    const sy = 0.8 + r3 * 0.35;
+    const sy = 0.55 + r3 * 0.45;
     items.push({
       chaos: {
         p: [(r1 - 0.5) * 18, 0.4 + r2 * 4.5, -4 + (r3 - 0.5) * 10],
         rot: [r2 * Math.PI * 0.9, r4 * Math.PI * 2, (r1 - 0.5) * Math.PI * 0.7],
       },
       order: {
-        p: [(c - (cols - 1) / 2) * 1.9, (stacked ? 1.16 : 0.16) + sy / 2, Z_ROWS[r]],
+        p: [(c - (cols - 1) / 2) * 1.9, (stacked ? 1.02 : 0.16) + sy / 2, Z_ROWS[r]],
       },
-      size: [0.95, sy, 0.95],
+      size: [0.7 + r2 * 0.45, sy, 0.7 + r4 * 0.4],
       amber: i % 9 === 0,
     });
   }
@@ -44,6 +97,8 @@ function buildLayout(count) {
 
 function Boxes({ progressRef, items }) {
   const refs = useRef([]);
+  const texPlain = useMemo(() => makeCardboardTexture(false), []);
+  const texLabel = useMemo(() => makeCardboardTexture(true), []);
 
   useFrame(() => {
     const p = smooth(progressRef.current);
@@ -64,12 +119,48 @@ function Boxes({ progressRef, items }) {
     <mesh key={i} ref={(el) => (refs.current[i] = el)}>
       <boxGeometry args={it.size} />
       <meshStandardMaterial
-        color={it.amber ? '#331803' : '#222222'}
-        roughness={0.8}
-        metalness={0.15}
+        map={i % 3 === 2 ? texLabel : texPlain}
+        roughness={0.95}
+        metalness={0}
         emissive={it.amber ? '#FF5C00' : '#000000'}
-        emissiveIntensity={it.amber ? 0.55 : 0}
+        emissiveIntensity={it.amber ? 0.18 : 0}
       />
+    </mesh>
+  ));
+}
+
+function AmbientParcels() {
+  const tex = useMemo(() => makeCardboardTexture(false), []);
+  const refs = useRef([]);
+  const data = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, i) => ({
+        p: [(seeded(i, 11) - 0.5) * 12, 0.8 + seeded(i, 12) * 4, -2 + (seeded(i, 13) - 0.5) * 7],
+        s: 0.3 + seeded(i, 14) * 0.25,
+        sp: 0.3 + seeded(i, 15) * 0.5,
+        ph: seeded(i, 16) * Math.PI * 2,
+        dir: i % 2 === 0 ? 1 : -1,
+      })),
+    []
+  );
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const scroll = typeof window !== 'undefined' ? window.scrollY : 0;
+    for (let i = 0; i < data.length; i++) {
+      const m = refs.current[i];
+      if (!m) continue;
+      const d = data[i];
+      m.position.y = d.p[1] + Math.sin(t * d.sp + d.ph) * 0.35 + scroll * 0.0004 * d.dir;
+      m.rotation.y = t * 0.15 * d.sp + d.ph;
+      m.rotation.x = Math.sin(t * 0.2 + d.ph) * 0.15;
+    }
+  });
+
+  return data.map((d, i) => (
+    <mesh key={i} ref={(el) => (refs.current[i] = el)} position={d.p} scale={d.s}>
+      <boxGeometry args={[1, 0.8, 1]} />
+      <meshStandardMaterial map={tex} roughness={0.95} metalness={0} />
     </mesh>
   ));
 }
@@ -180,72 +271,282 @@ function LightBeams() {
   ));
 }
 
-function Agv({ progressRef, reduced }) {
-  const g = useRef();
+function Agv({ progressRef, reduced, camRef }) {
+  const root = useRef();
+  const turret = useRef();
+  const shoulder = useRef();
+  const elbow = useRef();
+  const clawL = useRef();
+  const clawR = useRef();
+  const ringMat = useRef();
+  const hitRef = useRef();
+  const parcelsRef = useRef([]);
+  const busy = useRef(false);
+  const cycle = useRef(0);
+  const grabbedOnce = useRef(false);
+  const hoverRef = useRef(false);
+  const texLabel = useMemo(() => makeCardboardTexture(true), []);
+
+  const runSequence = (i) => {
+    const P = parcelsRef.current[i];
+    if (!P) return;
+    busy.current = true;
+    const R = root.current.position;
+    const S = SLOTS[i];
+    const faceP = -Math.atan2(P.position.z - R.z, P.position.x - R.x);
+    const faceS = -Math.atan2(S[2] - R.z, S[0] - R.x);
+    const tl = gsap.timeline({
+      onComplete: () => {
+        busy.current = false;
+      },
+    });
+    tl.to(root.current.rotation, { y: faceP, duration: 0.55, ease: 'power2.inOut' }, 0)
+      .to(turret.current.rotation, { y: 0, duration: 0.3 }, 0)
+      .to(shoulder.current.rotation, { z: -0.55, duration: 0.55, ease: 'power2.inOut' }, 0.45)
+      .to(elbow.current.rotation, { z: 0.9, duration: 0.55, ease: 'power2.inOut' }, 0.45)
+      .to(clawL.current.position, { z: 0.035, duration: 0.15 }, 1.05)
+      .to(clawR.current.position, { z: -0.035, duration: 0.15 }, 1.05)
+      .to(P.scale, { x: 1, y: 1, z: 1, duration: 0.2 }, 1.0)
+      .add(() => playBeep(1320), 1.1)
+      .to(P.position, { y: 1.75, duration: 0.5, ease: 'power2.out' }, 1.2)
+      .to(P.position, { x: R.x, z: R.z, duration: 0.45, ease: 'power2.inOut' }, 1.72)
+      .to(root.current.rotation, { y: faceS, duration: 0.6, ease: 'power2.inOut' }, 2.2)
+      .to(P.position, { x: S[0], z: S[2], duration: 0.6, ease: 'power2.inOut' }, 2.2)
+      .to(P.rotation, { x: 0, y: 0, duration: 0.5, ease: 'power2.inOut' }, 2.2)
+      .to(P.position, { y: S[1], duration: 0.35, ease: 'power2.in' }, 2.85)
+      .add(() => {
+        playBeep(880);
+        P.userData.placed = true;
+      }, 3.2)
+      .to(clawL.current.position, { z: 0.09, duration: 0.15 }, 3.2)
+      .to(clawR.current.position, { z: -0.09, duration: 0.15 }, 3.2)
+      .to(shoulder.current.rotation, { z: 0.9, duration: 0.5, ease: 'power2.inOut' }, 3.4)
+      .to(elbow.current.rotation, { z: -1.5, duration: 0.5, ease: 'power2.inOut' }, 3.4)
+      .to(root.current.rotation, { y: 0, duration: 0.6, ease: 'power2.inOut' }, 3.7);
+  };
+
+  const resetCycle = () => {
+    busy.current = true;
+    const tl = gsap.timeline({
+      onComplete: () => {
+        busy.current = false;
+        cycle.current = 0;
+      },
+    });
+    parcelsRef.current.forEach((P, i) => {
+      if (!P) return;
+      tl.to(P.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.3, ease: 'power2.in' }, i * 0.12)
+        .add(() => {
+          P.position.set(LOOSE[i].p[0], LOOSE[i].p[1], LOOSE[i].p[2]);
+          P.rotation.set(0, LOOSE[i].rot, 0);
+          P.userData.placed = false;
+        }, i * 0.12 + 0.32)
+        .to(P.scale, { x: 1, y: 1, z: 1, duration: 0.35, ease: 'back.out(2)' }, i * 0.12 + 0.36);
+    });
+    tl.add(() => playBeep(660), 0.5);
+  };
+
+  const grab = () => {
+    if (busy.current) return;
+    if (cycle.current >= 3) {
+      resetCycle();
+      return;
+    }
+    if (!grabbedOnce.current) {
+      grabbedOnce.current = true;
+      window.dispatchEvent(new Event('wf:robot-grabbed'));
+    }
+    runSequence(cycle.current);
+    cycle.current += 1;
+  };
+
+  useEffect(() => {
+    const ray = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    let raf = 0;
+    const test = (e) => {
+      if (!camRef.current || !hitRef.current) return false;
+      ndc.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+      ray.setFromCamera(ndc, camRef.current);
+      return ray.intersectObject(hitRef.current, false).length > 0;
+    };
+    const onMove = (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const h = test(e);
+        if (h !== hoverRef.current) {
+          hoverRef.current = h;
+          window.dispatchEvent(new CustomEvent('wf:robot-hover', { detail: h }));
+        }
+      });
+    };
+    const onClick = (e) => {
+      if (e.target.closest('button, a, input, select, textarea, label')) return;
+      if (test(e)) grab();
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('click', onClick);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('click', onClick);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [camRef]);
+
   useFrame((state) => {
-    if (!g.current) return;
-    const p = smooth(progressRef.current);
     const t = state.clock.elapsedTime;
-    const x = THREE.MathUtils.lerp(-8.5, 8.5, p);
-    const bob = reduced ? 0 : Math.sin(t * 7) * 0.02 * (1 - p);
-    g.current.position.set(x, bob, 0.1);
-    g.current.rotation.z = reduced ? 0 : Math.sin(t * 3.2) * 0.05 * (1 - p);
-    g.current.rotation.y = reduced ? 0 : Math.sin(t * 1.6) * 0.18 * (1 - p);
+    const p = smooth(progressRef.current);
+    if (!busy.current && root.current) {
+      const x = THREE.MathUtils.lerp(4.2, -6, p);
+      const bob = reduced ? 0 : Math.sin(t * 7) * 0.02 * (1 - p);
+      root.current.position.set(x, bob, 0.1);
+      root.current.rotation.y = reduced ? 0 : Math.sin(t * 1.4) * 0.12 * (1 - p);
+      root.current.rotation.z = reduced ? 0 : Math.sin(t * 3.2) * 0.04 * (1 - p);
+      if (turret.current) turret.current.rotation.y = reduced ? 0 : Math.sin(t * 0.7) * 0.7;
+      if (shoulder.current) shoulder.current.rotation.z = 0.9 + (reduced ? 0 : Math.sin(t * 1.2) * 0.05);
+    }
+    parcelsRef.current.forEach((m) => {
+      if (!m || m.userData.placed || busy.current) return;
+      m.scale.setScalar(Math.max(0.001, 1 - p));
+    });
+    if (ringMat.current) {
+      const base = grabbedOnce.current ? 0 : 0.3 + Math.sin(t * 3) * 0.15;
+      ringMat.current.opacity = base * (1 - p);
+    }
+    if (root.current) {
+      root.current.getWorldPosition(_v);
+      _v.y = 0.9;
+      _v.project(state.camera);
+      window.__wfRobot = {
+        x: (_v.x * 0.5 + 0.5) * window.innerWidth,
+        y: (-_v.y * 0.5 + 0.5) * window.innerHeight,
+      };
+      window.__wfParcels = parcelsRef.current.map((m) => (m ? [m.position.x, m.position.y, m.position.z] : null));
+    }
   });
 
   const wheels = [
-    [-0.42, 0.13, 0.34],
-    [0.42, 0.13, 0.34],
-    [-0.42, 0.13, -0.34],
-    [0.42, 0.13, -0.34],
+    [-0.45, 0.16, 0.44],
+    [0.45, 0.16, 0.44],
+    [-0.45, 0.16, -0.44],
+    [0.45, 0.16, -0.44],
   ];
 
   return (
-    <group ref={g}>
-      <mesh position={[0, 0.3, 0]}>
-        <boxGeometry args={[1.2, 0.38, 0.74]} />
-        <meshStandardMaterial color="#171717" roughness={0.35} metalness={0.65} />
-      </mesh>
-      <mesh position={[0, 0.51, 0]}>
-        <boxGeometry args={[1.22, 0.05, 0.52]} />
-        <meshStandardMaterial color="#FF5C00" emissive="#FF5C00" emissiveIntensity={1.8} />
-      </mesh>
-      <mesh position={[0.45, 0.85, 0]}>
-        <boxGeometry args={[0.07, 0.85, 0.07]} />
-        <meshStandardMaterial color="#242424" roughness={0.4} metalness={0.7} />
-      </mesh>
-      <mesh position={[0.45, 1.32, 0]}>
-        <sphereGeometry args={[0.09, 16, 16]} />
-        <meshStandardMaterial color="#FF8A00" emissive="#FF8A00" emissiveIntensity={3.2} />
-      </mesh>
-      <mesh position={[1.05, 0.85, 0]} rotation={[0, 0, -Math.PI / 2.6]}>
-        <coneGeometry args={[0.5, 1.9, 24, 1, true]} />
-        <meshBasicMaterial color="#FF5C00" transparent opacity={0.05} side={THREE.DoubleSide} depthWrite={false} />
-      </mesh>
-      {wheels.map((w, i) => (
-        <mesh key={i} position={w} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.14, 0.14, 0.09, 16]} />
-          <meshStandardMaterial color="#0D0D0D" roughness={0.9} />
+    <>
+      <group ref={root} position={[4.2, 0, 0.1]} scale={[1.2, 1.2, 1.2]}>
+        <mesh position={[0, 0.34, 0]}>
+          <boxGeometry args={[1.35, 0.36, 0.86]} />
+          <meshStandardMaterial color="#181818" roughness={0.35} metalness={0.7} />
+        </mesh>
+        <mesh position={[0, 0.55, 0]}>
+          <boxGeometry args={[1.1, 0.08, 0.66]} />
+          <meshStandardMaterial color="#222222" roughness={0.4} metalness={0.6} />
+        </mesh>
+        <mesh position={[0, 0.5, 0]}>
+          <boxGeometry args={[1.36, 0.045, 0.88]} />
+          <meshStandardMaterial color="#FF5C00" emissive="#FF5C00" emissiveIntensity={0.9} />
+        </mesh>
+        <mesh position={[0.69, 0.34, 0]}>
+          <boxGeometry args={[0.04, 0.08, 0.6]} />
+          <meshStandardMaterial color="#FF5C00" emissive="#FF5C00" emissiveIntensity={2.2} />
+        </mesh>
+        {wheels.map((w, i) => (
+          <group key={i} position={w}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.16, 0.16, 0.1, 16]} />
+              <meshStandardMaterial color="#0C0C0C" roughness={0.9} />
+            </mesh>
+            <mesh position={[0, 0, w[2] > 0 ? 0.06 : -0.06]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.06, 0.06, 0.02, 12]} />
+              <meshStandardMaterial color="#FF8A00" emissive="#FF8A00" emissiveIntensity={1.5} />
+            </mesh>
+          </group>
+        ))}
+        <mesh position={[-0.42, 1.05, 0]}>
+          <boxGeometry args={[0.13, 0.95, 0.13]} />
+          <meshStandardMaterial color="#242424" metalness={0.7} roughness={0.4} />
+        </mesh>
+        <group ref={turret} position={[-0.42, 1.56, 0]}>
+          <mesh>
+            <cylinderGeometry args={[0.17, 0.2, 0.16, 20]} />
+            <meshStandardMaterial color="#1C1C1C" metalness={0.7} roughness={0.35} />
+          </mesh>
+          <mesh position={[0.16, 0.02, 0]}>
+            <sphereGeometry args={[0.07, 16, 16]} />
+            <meshStandardMaterial color="#FF8A00" emissive="#FF8A00" emissiveIntensity={3.4} />
+          </mesh>
+          <pointLight position={[0.2, 0.05, 0]} color="#FF7A00" intensity={5} distance={6} decay={2} />
+        </group>
+        <group ref={shoulder} position={[0.42, 0.62, 0]} rotation={[0, 0, 0.9]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.11, 0.11, 0.2, 16]} />
+            <meshStandardMaterial color="#FF5C00" emissive="#FF5C00" emissiveIntensity={0.7} metalness={0.5} roughness={0.4} />
+          </mesh>
+          <mesh position={[0.32, 0, 0]}>
+            <boxGeometry args={[0.68, 0.13, 0.13]} />
+            <meshStandardMaterial color="#2A2A2A" metalness={0.65} roughness={0.4} />
+          </mesh>
+          <group ref={elbow} position={[0.64, 0, 0]} rotation={[0, 0, -1.5]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.08, 0.08, 0.16, 16]} />
+              <meshStandardMaterial color="#FF8A00" emissive="#FF8A00" emissiveIntensity={0.7} />
+            </mesh>
+            <mesh position={[0.27, 0, 0]}>
+              <boxGeometry args={[0.58, 0.1, 0.1]} />
+              <meshStandardMaterial color="#333333" metalness={0.65} roughness={0.4} />
+            </mesh>
+            <group position={[0.56, 0, 0]}>
+              <mesh ref={clawL} position={[0.05, 0, 0.09]}>
+                <boxGeometry args={[0.2, 0.05, 0.05]} />
+                <meshStandardMaterial color="#444444" metalness={0.7} roughness={0.35} />
+              </mesh>
+              <mesh ref={clawR} position={[0.05, 0, -0.09]}>
+                <boxGeometry args={[0.2, 0.05, 0.05]} />
+                <meshStandardMaterial color="#444444" metalness={0.7} roughness={0.35} />
+              </mesh>
+            </group>
+          </group>
+        </group>
+        <mesh position={[1.0, 0.8, 0]} rotation={[0, 0, -Math.PI / 2.6]}>
+          <coneGeometry args={[0.5, 1.9, 24, 1, true]} />
+          <meshBasicMaterial color="#FF5C00" transparent opacity={0.05} side={THREE.DoubleSide} depthWrite={false} />
+        </mesh>
+        <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.15, 0.02, 8, 48]} />
+          <meshBasicMaterial ref={ringMat} color="#FF5C00" transparent opacity={0.3} depthWrite={false} />
+        </mesh>
+        <mesh ref={hitRef} position={[0.3, 1.1, 0]}>
+          <boxGeometry args={[2.8, 2.6, 2.6]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      </group>
+      {LOOSE.map((l, i) => (
+        <mesh key={i} ref={(el) => (parcelsRef.current[i] = el)} position={l.p} rotation={[0, l.rot, 0]}>
+          <boxGeometry args={[0.85, 0.7, 0.85]} />
+          <meshStandardMaterial map={texLabel} roughness={0.95} metalness={0} />
         </mesh>
       ))}
-      <pointLight position={[0.45, 1.4, 0]} color="#FF6A00" intensity={7} distance={7} decay={2} />
-    </group>
+    </>
   );
 }
 
-function CameraRig({ progressRef, reduced }) {
+function CameraRig({ progressRef, reduced, mobile }) {
   useFrame(({ camera }) => {
     const p = smooth(progressRef.current);
     camera.position.x = THREE.MathUtils.lerp(camera.position.x, reduced ? 0 : Math.sin(p * Math.PI) * 1.2, 0.05);
     camera.position.y = THREE.MathUtils.lerp(camera.position.y, THREE.MathUtils.lerp(7.5, 9.4, p), 0.05);
     camera.position.z = THREE.MathUtils.lerp(camera.position.z, THREE.MathUtils.lerp(15.5, 13.2, p), 0.05);
-    camera.lookAt(0, 0.6, 0);
+    const shift = mobile ? -0.9 : -2.2;
+    camera.lookAt(THREE.MathUtils.lerp(shift, 0, p), 0.6, 0);
   });
   return null;
 }
 
 export default function Scene3D() {
   const progressRef = useRef(0);
+  const camRef = useRef(null);
   const settings = useMemo(() => {
     if (typeof window === 'undefined') return { mobile: false, reduced: false };
     return {
@@ -264,8 +565,9 @@ export default function Scene3D() {
     }
     const st = ScrollTrigger.create({
       trigger: '#transformation-track',
-      start: 'top bottom',
-      end: 'bottom top',
+      start: 'top top',
+      end: settings.mobile ? '+=1500' : '+=2200',
+      pin: true,
       scrub: true,
       onUpdate: (self) => {
         progressRef.current = self.progress;
@@ -274,7 +576,7 @@ export default function Scene3D() {
     ScrollTrigger.refresh();
     window.__wf = { st, progressRef };
     return () => st.kill();
-  }, [settings.reduced]);
+  }, [settings.reduced, settings.mobile]);
 
   return (
     <div data-testid="scene-3d" className="pointer-events-none fixed inset-0 z-0" aria-hidden>
@@ -282,6 +584,9 @@ export default function Scene3D() {
         dpr={settings.mobile ? [1, 1.5] : [1, 2]}
         camera={{ position: [0, 7.5, 15.5], fov: 42, near: 0.1, far: 70 }}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        onCreated={(s) => {
+          camRef.current = s.camera;
+        }}
       >
         <fog attach="fog" args={['#080808', 14, 34]} />
         <ambientLight intensity={0.35} />
@@ -297,8 +602,9 @@ export default function Scene3D() {
         <Pallets progressRef={progressRef} items={items} />
         <Racks progressRef={progressRef} rows={rows} />
         <LightBeams />
-        <Agv progressRef={progressRef} reduced={settings.reduced} />
-        <CameraRig progressRef={progressRef} reduced={settings.reduced} />
+        <AmbientParcels />
+        <Agv progressRef={progressRef} reduced={settings.reduced} camRef={camRef} />
+        <CameraRig progressRef={progressRef} reduced={settings.reduced} mobile={settings.mobile} />
       </Canvas>
     </div>
   );

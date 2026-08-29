@@ -6,7 +6,7 @@ export default function Problems() {
   const { t } = useLang();
   const d = t.problems;
   return (
-    <section id="problemi" data-testid="problems-section" className="relative z-10 bg-ink py-32">
+    <section id="problemi" data-testid="problems-section" className="relative z-10 bg-[#0A0A0A] py-32">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           index={d.index}

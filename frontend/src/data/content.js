@@ -7,6 +7,7 @@ export const HERO = {
   ],
   sub: 'WareFlow sincronizza le giacenze in meno di 1 millisecondo e trova qualsiasi codice in meno di 100. Nato dentro un magazzino vero, costruito sull’architettura che muove centinaia di milioni di pacchi al giorno — con la fatturazione SDI e il GDPR che i sistemi cinesi non hanno.',
   microstats: ['SYNC GIACENZE < 1MS', 'RICERCA < 100MS', 'ONBOARDING < 2H'],
+  robotHint: 'Prova a cliccare il robot — sistema i pacchi da solo',
 };
 
 export const PROBLEMS = [
@@ -176,6 +177,7 @@ const EN = {
     ],
     sub: 'WareFlow syncs inventory in under 1 millisecond and finds any code in under 100. Born inside a real warehouse, built on the architecture that moves hundreds of millions of parcels a day — with the SDI e-invoicing and GDPR compliance the Chinese systems never had.',
     microstats: ['INVENTORY SYNC < 1MS', 'SEARCH < 100MS', 'ONBOARDING < 2H'],
+    robotHint: 'Try clicking the robot — it tidies up the parcels on its own',
     ctaDemo: 'Book a demo',
     ctaProblem: 'See the problem ↓',
     scrollHint: 'Scroll — from chaos to order',

@@ -18,7 +18,7 @@ module.exports = {
                 },
                 amber2: '#FF8A00',
                 amber3: '#FFC400',
-                mute: '#A1A1A1',
+                mute: '#ADADAD',
                 background: 'hsl(var(--background))',
                 foreground: 'hsl(var(--foreground))',
                 border: 'rgba(255,255,255,0.08)',

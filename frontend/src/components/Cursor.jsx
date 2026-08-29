@@ -54,6 +54,12 @@ export default function Cursor() {
     };
   }, [x, y]);
 
+  useEffect(() => {
+    const onRobot = (e) => setHover(Boolean(e.detail));
+    window.addEventListener('wf:robot-hover', onRobot);
+    return () => window.removeEventListener('wf:robot-hover', onRobot);
+  }, []);
+
   if (!enabled) return null;
 
   return (

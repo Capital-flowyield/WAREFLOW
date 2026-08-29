@@ -37,7 +37,7 @@ export default function Stats() {
   const { t } = useLang();
   const d = t.stats;
   return (
-    <section id="numeri" data-testid="stats-section" className="relative z-10 bg-ink py-32">
+    <section id="numeri" data-testid="stats-section" className="relative z-10 bg-[rgba(9,11,14,0.94)] py-32">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           index={d.index}

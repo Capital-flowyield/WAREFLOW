@@ -6,7 +6,7 @@ export default function Marquee() {
   return (
     <div
       data-testid="editorial-marquee"
-      className="relative z-10 overflow-hidden border-y border-white/10 bg-[#0B0B0B] py-6"
+      className="relative z-10 overflow-hidden border-y border-white/10 bg-[rgba(12,11,10,0.9)] py-6"
     >
       <div className="animate-marquee flex w-max items-center">
         {items.map((item, i) => (
