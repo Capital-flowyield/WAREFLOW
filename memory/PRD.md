@@ -66,6 +66,10 @@ Sito di marketing single-page per WareFlow, WMS di nuova generazione per PMI ita
 - Verifica mobile emulata (390×844): pinning ok (p 0→0.46 con top=0, rilascio a p=1), tap sul robot → pacco nello slot, contatori <100ms/<1ms/<2ms/<2h, layout pulito. NON testato su dispositivo fisico né con touch reale (drag touch può confliggere con lo scroll Lenis: canvas pointer-events-none).
 - NOTA: il promemoria di sistema richiedeva verifica via subagent `testing_agent`, non disponibile nel toolset — verifica eseguita con test Playwright/screenshot reali documentati sopra.
 
+## Implementato (iterazione 6, 2026-08-29 — drag touch)
+- Durante il drag di un pacco lo scroll Lenis viene fermato (`stopScroll`/`startScroll` in lib/scroll.js, chiamati su pointerdown/pointerup/pointercancel): su touch il dito trascina il pacco senza scrollare la pagina, su desktop la rotellina è inattiva a metà drag.
+- Verificato live: wheel durante il drag lascia scrollY invariato (0→0), al rilascio il pacco va nello slot via assist del robot, dopo il rilascio lo scroll riprende (0→1199).
+
 ## Next tasks
 1. Utente: Save to GitHub → repo `wareflow-emergent`, branch main.
 2. Collegare form demo a email reale (serve scelta provider).

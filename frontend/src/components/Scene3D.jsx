@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { playBeep } from '../lib/sound';
+import { startScroll, stopScroll } from '../lib/scroll';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -464,6 +465,7 @@ function Agv({ progressRef, reduced, camRef }) {
         dragRef.current = P;
         P.userData.dragging = true;
         document.body.style.userSelect = 'none';
+        stopScroll();
         e.preventDefault();
       }
     };
@@ -485,6 +487,7 @@ function Agv({ progressRef, reduced, camRef }) {
         dropParcel(dragRef.current);
         dragRef.current = null;
         document.body.style.userSelect = '';
+        startScroll();
       }
     };
     const onMove = (e) => {
@@ -509,12 +512,14 @@ function Agv({ progressRef, reduced, camRef }) {
     window.addEventListener('pointerdown', onDown);
     window.addEventListener('pointermove', onDragMove);
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('click', onClick);
     return () => {
       window.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onDragMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('click', onClick);
       if (raf) cancelAnimationFrame(raf);

@@ -13,3 +13,11 @@ export function scrollToSection(selector) {
     el.scrollIntoView({ behavior: 'auto' });
   }
 }
+
+export function stopScroll() {
+  if (lenisInstance) lenisInstance.stop();
+}
+
+export function startScroll() {
+  if (lenisInstance) lenisInstance.start();
+}
