@@ -43,6 +43,12 @@ Sito di marketing single-page per WareFlow, WMS di nuova generazione per PMI ita
 - Sound design ambientale WebAudio (`SoundToggle.jsx`, fixed bottom-left): ronzio AGV (saw 52Hz + LFO), roomtone filtrato, bip scanner 1180Hz random ogni 2.6–7.2s. Default off, nessun asset esterno.
 - Verificato: toggle EN su tutta la pagina, scena ordinata con scaffali a p=0.85, toggle audio on/off senza errori, zero errori console.
 
+## Implementato (iterazione 3, 2026-08-29)
+- Favicon brand `public/favicon.svg` (griglia 2×2 quadrati ambra su fondo scuro — motivo caos→ordine), linkata in index.html.
+- Social card: `public/og-image.jpg` (1200×630, screenshot reale della hero) + meta Open Graph e Twitter Card completi in index.html (titolo, descrizione, immagine assoluta, locale it_IT/en_GB).
+- Verificato via curl: og:image servita (200), favicon 200, meta OG presenti nell'HTML dopo restart frontend (html-webpack-plugin richiede restart per modifiche a index.html).
+- GitHub: push NON eseguibile dall'agente — richiede azione utente via pulsante "Save to GitHub" (repo `wareflow-emergent`, branch main). In attesa del link repo dall'utente per verifica.
+
 ## Next tasks
 1. Utente: Save to GitHub → repo `wareflow-emergent`, branch main.
 2. Collegare form demo a email reale (serve scelta provider).
