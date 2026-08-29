@@ -26,7 +26,7 @@ export default function Navbar() {
           className="flex items-center gap-2.5"
         >
           <span className="block h-3 w-3 bg-primary shadow-[0_0_14px_rgba(255,92,0,0.8)]" />
-          <span className="font-mono text-sm font-bold tracking-[0.3em] text-white">WAREFLOW</span>
+          <span className="font-mono text-xs font-bold tracking-[0.18em] text-white md:text-sm md:tracking-[0.3em]">WAREFLOW</span>
         </button>
         <nav className="hidden items-center gap-8 md:flex">
           {t.nav.links.map((l) => (
@@ -61,7 +61,7 @@ export default function Navbar() {
           <button
             data-testid="nav-cta-demo"
             onClick={() => scrollToSection('#demo')}
-            className="border border-primary/60 px-4 py-2 font-mono text-xs uppercase tracking-[0.2em] text-primary transition-colors duration-300 hover:bg-primary hover:text-ink"
+            className="whitespace-nowrap border border-primary/60 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-primary transition-colors duration-300 hover:bg-primary hover:text-ink md:px-4 md:text-xs md:tracking-[0.2em]"
           >
             {t.nav.cta}
           </button>

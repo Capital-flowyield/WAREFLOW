@@ -60,6 +60,12 @@ Sito di marketing single-page per WareFlow, WMS di nuova generazione per PMI ita
 - Contrasto: sezioni con toni diversi e alpha 0.90–0.95 (problems #0A0A0A opaco, principles/modules/stats/compliance/CTA semi-trasparenti con tinte calde/fredde), mute #ADADAD.
 - Movimento ovunque: AmbientParcels (10 pacchi che fluttuano con parallasse legata a window.scrollY) visibili in trasparenza dietro le sezioni post-transizione.
 
+## Implementato (iterazione 5, 2026-08-29 — drag pacchi + mobile)
+- Drag dei pacchi: pointerdown/move/up con raycast sui 3 pacchi liberi e piano pavimento (y=0.9, clamp x ±8, z -4..5), rotazione durante il trascinamento, user-select disattivato durante il drag (fix selezione testo), soglia 6px per sopprimere il click post-drag. Al rilascio: se entro 1.7 unità da uno slot libero → il robot esegue assistPlace (ruota, estende il braccio, snap del pacco nello slot, bip); altrimenti il pacco cade con bounce e la torretta "lo guarda". Slot gestiti con slotTaken condiviso tra click e drag; il click del robot prende il primo pacco non posato → primo slot libero.
+- Hint hero aggiornato IT/EN ("Clicca il robot o trascina un pacco…"); su mobile l'hint è inline sotto le CTA (barra assoluta nascosta sotto md), toggle audio spostato bottom-right su mobile, navbar compattata (logo/CTA responsive).
+- Verifica mobile emulata (390×844): pinning ok (p 0→0.46 con top=0, rilascio a p=1), tap sul robot → pacco nello slot, contatori <100ms/<1ms/<2ms/<2h, layout pulito. NON testato su dispositivo fisico né con touch reale (drag touch può confliggere con lo scroll Lenis: canvas pointer-events-none).
+- NOTA: il promemoria di sistema richiedeva verifica via subagent `testing_agent`, non disponibile nel toolset — verifica eseguita con test Playwright/screenshot reali documentati sopra.
+
 ## Next tasks
 1. Utente: Save to GitHub → repo `wareflow-emergent`, branch main.
 2. Collegare form demo a email reale (serve scelta provider).

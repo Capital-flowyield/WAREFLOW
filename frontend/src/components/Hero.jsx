@@ -99,6 +99,17 @@ export default function Hero() {
             >
               {HERO.ctaProblem}
             </button>
+            {HERO.robotHint && (
+              <p
+                data-testid="hero-robot-hint-mobile"
+                className={`mt-6 flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-primary transition-opacity duration-700 md:hidden ${
+                  grabbed ? 'opacity-0' : 'opacity-100'
+                }`}
+              >
+                <span className="animate-pulse-dot inline-block h-1.5 w-1.5 shrink-0 bg-primary" />
+                {HERO.robotHint}
+              </p>
+            )}
           </motion.div>
         </div>
       </motion.div>
@@ -107,12 +118,12 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.6, duration: 1 }}
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 mx-auto max-w-7xl px-6 pb-8"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 mx-auto hidden max-w-7xl px-6 pb-8 md:block"
       >
         {HERO.robotHint && (
           <p
             data-testid="hero-robot-hint"
-            className={`mb-4 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.25em] text-primary transition-opacity duration-700 ${
+            className={`mb-4 flex items-center gap-2.5 pr-[150px] font-mono text-[11px] uppercase tracking-[0.25em] text-primary transition-opacity duration-700 md:pr-0 ${
               grabbed ? 'opacity-0' : 'opacity-100'
             }`}
           >
@@ -128,7 +139,7 @@ export default function Hero() {
               </span>
             ))}
           </div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-mute">
+          <p className="hidden font-mono text-[10px] uppercase tracking-[0.25em] text-mute md:block">
             {HERO.scrollHint} <span className="text-primary">↓</span>
           </p>
         </div>
