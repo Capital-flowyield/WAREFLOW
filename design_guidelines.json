@@ -1,0 +1,131 @@
+{
+  "project_name": "WareFlow",
+  "theme": "dark",
+  "typography": {
+    "headings": {
+      "font_family": "Cabinet Grotesk, sans-serif",
+      "strategy": "Impactful, technical, tight tracking (tracking-tighter). Used for hero and section headers."
+    },
+    "body": {
+      "font_family": "Manrope, sans-serif",
+      "strategy": "Clean, highly readable geometric sans for paragraphs and UI text."
+    },
+    "mono": {
+      "font_family": "JetBrains Mono, monospace",
+      "strategy": "Used for performance numbers, data points, and technical labels to give an industrial/engineering feel."
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl font-black tracking-tighter uppercase",
+      "h2": "text-4xl md:text-5xl font-bold tracking-tight",
+      "h3": "text-2xl font-bold",
+      "body": "text-base md:text-lg text-neutral-400",
+      "mono_label": "text-xs md:text-sm font-mono uppercase tracking-[0.2em] text-primary"
+    }
+  },
+  "colors": {
+    "palette_archetype": "Dark Industrial / The Performance Pro",
+    "background": "#080808",
+    "surface": "#121212",
+    "surface_elevated": "#1A1A1A",
+    "primary": "#FF5C00",
+    "primary_hover": "#FF8A00",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#A1A1A1",
+    "border": "rgba(255, 255, 255, 0.08)",
+    "glow": "rgba(255, 92, 0, 0.3)"
+  },
+  "visual_enhancers": {
+    "custom_cursor": "Framer Motion tracking cursor. Default: small glowing amber dot with a subtle gradient trail. Hover state (interactive elements): transforms into a scanner bracket [ ] framing the element.",
+    "noise_overlay": "Fixed overlay with low-opacity SVG noise texture (pointer-events-none) to add industrial grit and prevent flat blacks.",
+    "kinetic_typography": "Hero headline uses masked line-by-line reveal (Framer Motion). Text lines start at y: 100% wrapped in overflow-hidden spans, animating to y: 0.",
+    "glassmorphism": "Used only for the sticky navigation: backdrop-blur-xl bg-black/60 with a delicate 1px border-white/10 bottom stroke."
+  },
+  "layouts": {
+    "spacing": "Generous spacing. py-32 for standard sections, gap-8 to gap-12 in grids. Container max-width to hold content while 3D spans viewport.",
+    "problems_grid": "Bento Grid strategy (grid-cols-1 md:grid-cols-3). Cards use 1px subtle borders, dark surface backgrounds, and a subtle amber ambient glow on hover.",
+    "hero_layout": "100vh sticky container. The 3D canvas lives at z-0. Typography and UI overlay at z-10, pointer-events-none (except for buttons)."
+  },
+  "3d_strategy": {
+    "libraries": ["@react-three/fiber", "@react-three/drei", "gsap", "three"],
+    "scene_description": "A low-poly stylized warehouse environment. Initially chaotic (floating/misaligned boxes). A small stylized AGV robot is the focal point.",
+    "scroll_interaction": "Driven by GSAP ScrollTrigger with scrub: true. As the user scrolls, the AGV robot moves forward, and the chaotic boxes smoothly snap into an organized grid structure. Camera slowly tracks the robot.",
+    "lighting": "Dark moody ambient light with strong amber/orange spotlights pointing down onto the AGV and key warehouse racks, creating long dramatic shadows.",
+    "mobile_fallback": "Respects prefers-reduced-motion. On mobile, use a lighter 3D scene (fewer meshes) or a static cinematic render with simple parallax to ensure performance."
+  },
+  "motion": {
+    "scroll_engine": "Lenis for buttery smooth momentum scrolling, crucial for feeling premium.",
+    "interactions": "Buttons use aggressive industrial hover states: dark background to primary color fill, sharp edges. Cards lift slightly (-translate-y-1) with an amber box-shadow glow.",
+    "counters": "Performance numbers use framer-motion useSpring/useTransform to count up exactly when scrolled into view."
+  },
+  "accessibility": {
+    "contrast": "Text must meet WCAG AA against #080808. Use #A1A1A1 for secondary text, never pure gray.",
+    "motion": "Implement a hook to check prefers-reduced-motion; disable 3D scrub and fall back to static high-res renders if true.",
+    "testing": "All interactive elements must have data-testid attributes (e.g., data-testid='cta-hero-button')."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1633523316711-a969b8f47bdc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjB3YXJlaG91c2UlMjBkYXJrJTIwaW50ZXJpb3J8ZW58MHx8fGJsYWNrfDE3ODgwMDAzNTd8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Dark empty modern industrial space, use as fallback background for sections without 3D canvas.",
+        "category": "background_fallback"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1782398138737-e9be9a35545e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGluZHVzdHJpYWwlMjBsb2dpc3RpY3MlMjBwYXR0ZXJufGVufDB8fHx8MTc4ODAwMDM1N3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Aerial view of shipping containers, can be used as subtle texture/image in the 'Modules' section cards.",
+        "category": "modules_texture"
+      }
+    ]
+  },
+  "sections_roadmap": [
+    {
+      "name": "Hero",
+      "content": "Headline: 'Il magazzino che vedi a schermo è quello che hai davvero.' Subhead: 'Dal caos all'ordine.' CTA: 'Richiedi una demo'. Background: 3D Canvas.",
+      "ui": "Absolute positioned UI, kinetic text reveal."
+    },
+    {
+      "name": "The 9 Problems",
+      "content": "9 reformulated real-world warehouse problems.",
+      "ui": "Bento grid of dark technical cards. Numbered 01-09 in JetBrains Mono."
+    },
+    {
+      "name": "Architectural Principles",
+      "content": "3 Principles: 'Configurazione, non codice'.",
+      "ui": "Large typography side-scrolling or staggered list. Huge layout."
+    },
+    {
+      "name": "Modules",
+      "content": "5 core WMS modules.",
+      "ui": "Horizontal scroll section or technical accordion."
+    },
+    {
+      "name": "Performance",
+      "content": "Counters: <100ms, <1ms, <2ms, <2h. 'Fatti, non promesse'.",
+      "ui": "Massive JetBrains Mono text counting up. High contrast."
+    },
+    {
+      "name": "Compliance & Tech",
+      "content": "SDI, GDPR, Hosting UE",
+      "ui": "Slow, elegant marquees (react-fast-marquee) with technical Mono font and large spacing."
+    },
+    {
+      "name": "Footer / CTA",
+      "content": "Form for Demo Request.",
+      "ui": "Simulated form (Shadcn customized to dark industrial look) inside a solid dark surface."
+    }
+  ],
+  "instructions_to_main_agent": {
+    "setup": "Install @react-three/fiber, @react-three/drei, three, gsap, @studio-freight/react-lenis, framer-motion, lucide-react, react-fast-marquee.",
+    "development": "Ensure Lenis is wrapped around the application. Create a Global Canvas component for the 3D scene that spans 100vh and sticks using GSAP. For the 3D elements, generate simple BoxGeometries for the warehouse shelves/boxes and a simple grouped mesh for the 'AGV robot'. Animate them via useFrame and GSAP ScrollTrigger.",
+    "ui_elements": "Build the custom cursor component early and apply it globally. Ensure the 3D canvas does not block pointer events for HTML buttons. Do NOT use generic Shadcn cards; build custom HTML/Tailwind divs with exact borders and paddings to match the 'Industrial' aesthetic."
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Do not converge toward generic AI outputs. This is an Awwwards-level site, it must feel cinematic and technical.",
+    "Do not use transparent backgrounds under text that overlap with images/3D.",
+    "Avoid centering large paragraphs of text; left-align them to maintain an editorial, technical flow.",
+    "Create depth using subtle border outlines (1px border-white/10) rather than heavy drop shadows.",
+    "Use pill-shaped or sharp rectangular buttons with aggressive hover states (e.g., text color changing, background filling with #FF5C00).",
+    "Never use generic AI emojis.",
+    "Every interactive element MUST include a data-testid attribute.",
+    "Use sonner for toast notifications."
+  ]
+}
